@@ -3,8 +3,16 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+  overflow: hidden; /* html에서는 스크롤 방지 */
+}
+
 body {
   margin: 0;
+  height: 100%;
+  overflow-x: hidden; /* 가로 스크롤 방지 */
+  overflow-y: auto; /* 세로 스크롤은 필요시에만 */
   font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   background: #ffffff;
   color: #111111;
@@ -14,9 +22,11 @@ body {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
+  height: 100%;
   background: #ffffff;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* app-shell에서 오버플로우 제어 */
 }
 
 .app-header {
@@ -73,6 +83,8 @@ body {
 .app-main {
   flex: 1;
   padding: 64px 16px 88px; /* 상단 헤더(~50px) + 하단 푸터(~72px) 공간 확보 */
+  overflow-y: auto; /* 콘텐츠가 넘칠 때만 스크롤 */
+  overflow-x: hidden; /* 가로 스크롤 방지 */
 }
 
 .app-footer {
@@ -80,11 +92,12 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 12px 16px 32px; /* FLO 앱 스타일: 위 12px, 아래 32px */
+  padding: 12px 16px 12px; /* 위아래 동일하게 12px */
   background: #ffffff;
   z-index: 100;
   display: flex;
   gap: 8px;
+  padding-bottom: 34px; /* Safe area를 위한 추가 여백 (iOS 홈 인디케이터) */
 }
 
 .app-footer::before {

@@ -329,6 +329,10 @@ function goToPhotoStep() {
   restartButton.style.display = "none";
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
   
+  // 헤더 spacer 숨김 (뒤로가기 버튼 표시로 타이틀 자동 중앙)
+  const headerSpacer = document.getElementById("header-spacer");
+  if (headerSpacer) headerSpacer.style.display = "none";
+  
   // 화면 최상단으로 스크롤
   window.scrollTo(0, 0);
 }
@@ -354,6 +358,10 @@ function goToLayoutStep() {
   downloadButton.style.display = "none";
   restartButton.style.display = "none";
   backButton.style.display = "none"; // 레이아웃 선택에서는 뒤로가기 없음
+  
+  // 헤더 spacer 표시 (타이틀 중앙 정렬)
+  const headerSpacer = document.getElementById("header-spacer");
+  if (headerSpacer) headerSpacer.style.display = "block";
 }
 
 // 처음 화면으로 돌아가기 (모든 상태 초기화)
@@ -418,6 +426,10 @@ function goToEditStep() {
   downloadButton.style.display = "none";
   restartButton.style.display = "none";
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
+  
+  // 헤더 spacer 숨김
+  const headerSpacer = document.getElementById("header-spacer");
+  if (headerSpacer) headerSpacer.style.display = "none";
 
   // 편집 화면으로 돌아올 때는 기존 offset 유지
   // 이미지 로드 및 미리보기 렌더링
@@ -451,8 +463,10 @@ function goToResultStep() {
   downloadButton.style.display = "flex"; // 다운로드 버튼 표시
   restartButton.style.display = "flex"; // 다시 만들기 버튼 표시
   
-  // 뒤로가기 버튼 숨김
+  // 뒤로가기 버튼 숨김, 오른쪽 spacer 표시 (타이틀 중앙 정렬)
   backButton.style.display = "none";
+  const headerSpacer = document.getElementById("header-spacer");
+  if (headerSpacer) headerSpacer.style.display = "block";
   
   // 화면 최상단으로 스크롤
   window.scrollTo(0, 0);
