@@ -501,7 +501,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 52px; /* FLO 앱 표준 버튼 높이 */
+  height: 56px; /* 모든 버튼 56px로 통일 */
   border-radius: 12px;
   border: none;
   font-size: 14px;
@@ -558,7 +558,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 52px; /* FLO 앱 표준 버튼 높이 */
+  height: 56px; /* 모든 버튼 56px로 통일 */
   border-radius: 12px;
   border: 1px solid #ebecef;
   font-size: 14px;
