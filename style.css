@@ -97,6 +97,7 @@ body {
   background: #ffffff;
   z-index: 100;
   display: flex;
+  flex-direction: column; /* column으로 변경하여 버튼들이 세로로 쌓이게 */
   gap: 8px;
 }
 
@@ -111,6 +112,12 @@ body {
 .secondary-buttons {
   display: flex;
   gap: 8px;
+  width: 100%;
+}
+
+/* 기본 버튼이 전체 너비 차지하도록 */
+.app-footer > .primary-btn,
+.app-footer > .cta-btn {
   width: 100%;
 }
 
