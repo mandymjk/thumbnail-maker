@@ -328,10 +328,14 @@ function goToPhotoStep() {
   downloadButton.style.display = "none";
   restartButton.style.display = "none";
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
+  backButton.style.visibility = "visible"; // visibility 복원
   
   // 헤더 spacer 표시 (타이틀 중앙 정렬)
   const headerSpacer = document.getElementById("header-spacer");
-  if (headerSpacer) headerSpacer.style.display = "block";
+  if (headerSpacer) {
+    headerSpacer.style.display = "block";
+    headerSpacer.style.visibility = "visible";
+  }
   
   // 화면 최상단으로 스크롤
   window.scrollTo(0, 0);
@@ -349,7 +353,7 @@ function goToLayoutStep() {
   // 레이아웃 선택 화면만 활성화
   stepLayout.classList.add("step-active");
   appTitle.textContent = "레이아웃 선택";
-
+  
   // 버튼 표시 설정
   nextButton.style.display = "flex";
   nextButton.textContent = "다음으로";
@@ -357,11 +361,14 @@ function goToLayoutStep() {
   setFloButton.style.display = "none";
   downloadButton.style.display = "none";
   restartButton.style.display = "none";
-  backButton.style.display = "none"; // 레이아웃 선택에서는 뒤로가기 없음
+  backButton.style.visibility = "hidden"; // 공간은 유지하고 안보이게만
   
   // 헤더 spacer 표시 (타이틀 중앙 정렬)
   const headerSpacer = document.getElementById("header-spacer");
-  if (headerSpacer) headerSpacer.style.display = "block";
+  if (headerSpacer) {
+    headerSpacer.style.display = "block";
+    headerSpacer.style.visibility = "visible";
+  }
 }
 
 // 처음 화면으로 돌아가기 (모든 상태 초기화)
@@ -416,10 +423,14 @@ function goToEditStep() {
   downloadButton.style.display = "none";
   restartButton.style.display = "none";
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
+  backButton.style.visibility = "visible"; // visibility 복원
   
   // 헤더 spacer 표시 (타이틀 중앙 정렬)
   const headerSpacer = document.getElementById("header-spacer");
-  if (headerSpacer) headerSpacer.style.display = "block";
+  if (headerSpacer) {
+    headerSpacer.style.display = "block";
+    headerSpacer.style.visibility = "visible";
+  }
 
   // 편집 화면으로 돌아올 때는 기존 offset 유지
   // 이미지 로드 및 미리보기 렌더링
@@ -453,10 +464,13 @@ function goToResultStep() {
   downloadButton.style.display = "flex"; // 다운로드 버튼 표시
   restartButton.style.display = "flex"; // 다시 만들기 버튼 표시
   
-  // 뒤로가기 버튼 숨김, 오른쪽 spacer 표시 (타이틀 중앙 정렬)
-  backButton.style.display = "none";
+  // 뒤로가기 버튼 숨김 (visibility로 공간은 유지), spacer도 표시
+  backButton.style.visibility = "hidden"; // display 대신 visibility 사용
   const headerSpacer = document.getElementById("header-spacer");
-  if (headerSpacer) headerSpacer.style.display = "block";
+  if (headerSpacer) {
+    headerSpacer.style.display = "block";
+    headerSpacer.style.visibility = "visible";
+  }
   
   // 화면 최상단으로 스크롤
   window.scrollTo(0, 0);
