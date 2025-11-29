@@ -531,7 +531,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 52px; /* FLO 앱 표준 버튼 높이 */
+  height: 56px; /* FLO 앱 하단 탭 바 높이와 동일 */
   border-radius: 12px;
   border: none;
   font-size: 15px;
