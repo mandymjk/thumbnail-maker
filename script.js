@@ -18,6 +18,10 @@ let dragOffsetY = 0;
 let isPinching = false;
 let initialPinchDistance = 0;
 let initialScale = 1;
+let pinchCenterX = 0; // 핀치 중심점 X (캔버스 좌표)
+let pinchCenterY = 0; // 핀치 중심점 Y (캔버스 좌표)
+let initialOffsetX = 0; // 핀치 시작 시 offset X
+let initialOffsetY = 0; // 핀치 시작 시 offset Y
 
 // 레이아웃별 사진 개수 제한
 const layoutLimits = {
@@ -317,8 +321,16 @@ function goToPhotoStep() {
   updatePhotoCount();
   updateButtonState();
 
+  // 버튼 표시 설정
+  nextButton.style.display = "flex";
   nextButton.textContent = "이미지로 만들기";
-  restartButton.style.display = "none"; // 다시 만들기 버튼 숨김
+  setFloButton.style.display = "none";
+  downloadButton.style.display = "none";
+  restartButton.style.display = "none";
+  backButton.style.display = "block"; // 뒤로가기 버튼 표시
+  
+  // 화면 최상단으로 스크롤
+  window.scrollTo(0, 0);
 }
 
 function goToLayoutStep() {
@@ -334,9 +346,14 @@ function goToLayoutStep() {
   stepLayout.classList.add("step-active");
   appTitle.textContent = "레이아웃 선택";
 
+  // 버튼 표시 설정
+  nextButton.style.display = "flex";
   nextButton.textContent = "다음으로";
   nextButton.disabled = !selectedLayout;
-  restartButton.style.display = "none"; // 다시 만들기 버튼 숨김
+  setFloButton.style.display = "none";
+  downloadButton.style.display = "none";
+  restartButton.style.display = "none";
+  backButton.style.display = "none"; // 레이아웃 선택에서는 뒤로가기 없음
 }
 
 // 처음 화면으로 돌아가기 (모든 상태 초기화)
@@ -393,9 +410,14 @@ function goToEditStep() {
   stepEdit.classList.add("step-active");
   appTitle.textContent = "썸네일 편집";
 
+  // 버튼 표시 설정
+  nextButton.style.display = "flex";
   nextButton.textContent = "썸네일 생성하기";
   nextButton.disabled = false;
-  restartButton.style.display = "none"; // 다시 만들기 버튼 숨김
+  setFloButton.style.display = "none";
+  downloadButton.style.display = "none";
+  restartButton.style.display = "none";
+  backButton.style.display = "block"; // 뒤로가기 버튼 표시
 
   // 편집 화면으로 돌아올 때는 기존 offset 유지
   // 이미지 로드 및 미리보기 렌더링
@@ -404,6 +426,9 @@ function goToEditStep() {
   } else {
     renderPreview();
   }
+  
+  // 화면 최상단으로 스크롤
+  window.scrollTo(0, 0);
 }
 
 // 결과 화면으로 이동
@@ -425,6 +450,12 @@ function goToResultStep() {
   setFloButton.style.display = "flex"; // FLO 설정 버튼 표시
   downloadButton.style.display = "flex"; // 다운로드 버튼 표시
   restartButton.style.display = "flex"; // 다시 만들기 버튼 표시
+  
+  // 뒤로가기 버튼 숨김
+  backButton.style.display = "none";
+  
+  // 화면 최상단으로 스크롤
+  window.scrollTo(0, 0);
 }
 
 // 이미지 영역 정보 저장 (드래그를 위해)
@@ -494,20 +525,23 @@ function drawLayout(ctx, size, images, isPreview = false) {
       const offset = isPreview ? imageOffsets[0] : { x: 0, y: 0 };
       const userScale = isPreview ? (imageScales[0] || 1.0) : 1.0;
       
+      // 클리핑 영역 설정
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, size, size);
+      ctx.clip();
+      
       // cover 방식: 더 짧은 쪽에 맞춰서 crop
       const scale = Math.max(size / img.width, size / img.height) * userScale;
       const scaledWidth = img.width * scale;
       const scaledHeight = img.height * scale;
       
-      // crop할 영역 계산 (중앙 기준)
-      const cropX = (scaledWidth - size) / 2 - offset.x;
-      const cropY = (scaledHeight - size) / 2 - offset.y;
+      // 이미지 그리기 위치 (offset 적용)
+      const drawX = (size - scaledWidth) / 2 + offset.x;
+      const drawY = (size - scaledHeight) / 2 + offset.y;
       
-      ctx.drawImage(
-        img,
-        cropX, cropY, size, size, // source crop
-        0, 0, size, size // destination
-      );
+      ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
+      ctx.restore();
       
       if (isPreview) {
         imageRegions.push({ x: 0, y: 0, width: size, height: size, imageIndex: 0 });
@@ -524,20 +558,23 @@ function drawLayout(ctx, size, images, isPreview = false) {
         const userScale = isPreview ? (imageScales[i] || 1.0) : 1.0;
         const regionY = i * cellHeight;
         
+        // 클리핑 영역 설정
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, regionY, size, cellHeight);
+        ctx.clip();
+        
         // cover 방식: 더 짧은 쪽에 맞춰서 crop
         const scale = Math.max(size / img.width, cellHeight / img.height) * userScale;
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
         
-        // crop할 영역 계산
-        const cropX = (scaledWidth - size) / 2 - offset.x;
-        const cropY = (scaledHeight - cellHeight) / 2 - offset.y;
+        // 이미지 그리기 위치
+        const drawX = (size - scaledWidth) / 2 + offset.x;
+        const drawY = regionY + (cellHeight - scaledHeight) / 2 + offset.y;
         
-        ctx.drawImage(
-          img,
-          cropX, cropY, size, cellHeight, // source crop
-          0, regionY, size, cellHeight // destination
-        );
+        ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
+        ctx.restore();
         
         if (isPreview) {
           imageRegions.push({ x: 0, y: regionY, width: size, height: cellHeight, imageIndex: i });
@@ -553,16 +590,20 @@ function drawLayout(ctx, size, images, isPreview = false) {
       const topImg = images[0];
       const topOffset = isPreview ? imageOffsets[0] : { x: 0, y: 0 };
       const topUserScale = isPreview ? (imageScales[0] || 1.0) : 1.0;
+      
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, size, topHeight);
+      ctx.clip();
+      
       const topScale = Math.max(size / topImg.width, topHeight / topImg.height) * topUserScale;
       const topScaledWidth = topImg.width * topScale;
       const topScaledHeight = topImg.height * topScale;
-      const topCropX = (topScaledWidth - size) / 2 - topOffset.x;
-      const topCropY = (topScaledHeight - topHeight) / 2 - topOffset.y;
-      ctx.drawImage(
-        topImg,
-        topCropX, topCropY, size, topHeight,
-        0, 0, size, topHeight
-      );
+      const topDrawX = (size - topScaledWidth) / 2 + topOffset.x;
+      const topDrawY = (topHeight - topScaledHeight) / 2 + topOffset.y;
+      
+      ctx.drawImage(topImg, topDrawX, topDrawY, topScaledWidth, topScaledHeight);
+      ctx.restore();
       
       if (isPreview) {
         imageRegions.push({ x: 0, y: 0, width: size, height: topHeight, imageIndex: 0 });
@@ -575,17 +616,19 @@ function drawLayout(ctx, size, images, isPreview = false) {
         const regionX = i * bottomCellWidth;
         const regionY = topHeight;
         
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(regionX, regionY, bottomCellWidth, bottomHeight);
+        ctx.clip();
+        
         const scale = Math.max(bottomCellWidth / img.width, bottomHeight / img.height) * userScale;
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
-        const cropX = (scaledWidth - bottomCellWidth) / 2 - offset.x;
-        const cropY = (scaledHeight - bottomHeight) / 2 - offset.y;
+        const drawX = regionX + (bottomCellWidth - scaledWidth) / 2 + offset.x;
+        const drawY = regionY + (bottomHeight - scaledHeight) / 2 + offset.y;
         
-        ctx.drawImage(
-          img,
-          cropX, cropY, bottomCellWidth, bottomHeight,
-          regionX, regionY, bottomCellWidth, bottomHeight
-        );
+        ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
+        ctx.restore();
         
         if (isPreview) {
           imageRegions.push({ x: regionX, y: regionY, width: bottomCellWidth, height: bottomHeight, imageIndex: i + 1 });
@@ -604,17 +647,19 @@ function drawLayout(ctx, size, images, isPreview = false) {
         const regionX = col * cellWidth;
         const regionY = row * cellHeight;
         
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(regionX, regionY, cellWidth, cellHeight);
+        ctx.clip();
+        
         const scale = Math.max(cellWidth / img.width, cellHeight / img.height) * userScale;
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
-        const cropX = (scaledWidth - cellWidth) / 2 - offset.x;
-        const cropY = (scaledHeight - cellHeight) / 2 - offset.y;
+        const drawX = regionX + (cellWidth - scaledWidth) / 2 + offset.x;
+        const drawY = regionY + (cellHeight - scaledHeight) / 2 + offset.y;
         
-        ctx.drawImage(
-          img,
-          cropX, cropY, cellWidth, cellHeight,
-          regionX, regionY, cellWidth, cellHeight
-        );
+        ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
+        ctx.restore();
         
         if (isPreview) {
           imageRegions.push({ x: regionX, y: regionY, width: cellWidth, height: cellHeight, imageIndex: i });
@@ -624,6 +669,7 @@ function drawLayout(ctx, size, images, isPreview = false) {
   }
 }
 
+// 최종 썸네일 생성 (결과 화면)
 // 이미지 영역 정보 저장 (드래그를 위해)
 
 // 드래그 이벤트 처리
@@ -717,16 +763,19 @@ previewCanvas.addEventListener("touchstart", (e) => {
     const dy = touch2.clientY - touch1.clientY;
     initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
     
-    // 터치 중앙점이 속한 이미지 찾기
-    const centerX = ((touch1.clientX + touch2.clientX) / 2 - rect.left) * scale;
-    const centerY = ((touch1.clientY + touch2.clientY) / 2 - rect.top) * scale;
+    // 터치 중앙점 (캔버스 좌표)
+    pinchCenterX = ((touch1.clientX + touch2.clientX) / 2 - rect.left) * scale;
+    pinchCenterY = ((touch1.clientY + touch2.clientY) / 2 - rect.top) * scale;
     
+    // 터치 중앙점이 속한 이미지 찾기
     for (let i = imageRegions.length - 1; i >= 0; i--) {
       const region = imageRegions[i];
-      if (centerX >= region.x && centerX < region.x + region.width &&
-          centerY >= region.y && centerY < region.y + region.height) {
+      if (pinchCenterX >= region.x && pinchCenterX < region.x + region.width &&
+          pinchCenterY >= region.y && pinchCenterY < region.y + region.height) {
         dragImageIndex = region.imageIndex;
         initialScale = imageScales[dragImageIndex] || 1.0;
+        initialOffsetX = imageOffsets[dragImageIndex].x;
+        initialOffsetY = imageOffsets[dragImageIndex].y;
         break;
       }
     }
@@ -768,9 +817,25 @@ previewCanvas.addEventListener("touchmove", (e) => {
     const dy = touch2.clientY - touch1.clientY;
     const currentDistance = Math.sqrt(dx * dx + dy * dy);
     
-    // 스케일 계산 (0.5배 ~ 3배 제한)
+    // 스케일 변화량 계산 (0.5배 ~ 3배 제한)
     const scaleChange = currentDistance / initialPinchDistance;
     const newScale = Math.max(0.5, Math.min(3.0, initialScale * scaleChange));
+    
+    // 스케일 변화에 따른 offset 조정 (핀치 중심점 기준)
+    // 핀치 중심점이 화면상 같은 위치에 머물도록 offset 계산
+    const region = imageRegions.find(r => r.imageIndex === dragImageIndex);
+    if (region) {
+      // 핀치 중심점의 이미지 영역 내 상대 위치
+      const relativeX = pinchCenterX - region.x;
+      const relativeY = pinchCenterY - region.y;
+      
+      // 스케일 변화량
+      const scaleDelta = newScale / initialScale;
+      
+      // offset 조정: 중심점을 기준으로 확대/축소
+      imageOffsets[dragImageIndex].x = initialOffsetX + (relativeX - region.width / 2) * (scaleDelta - 1);
+      imageOffsets[dragImageIndex].y = initialOffsetY + (relativeY - region.height / 2) * (scaleDelta - 1);
+    }
     
     imageScales[dragImageIndex] = newScale;
     renderPreview();
