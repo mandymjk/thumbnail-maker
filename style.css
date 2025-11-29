@@ -566,14 +566,6 @@ body {
   .app-footer {
     padding: 20px 24px 20px;
   }
-
-  .layout-grid {
-    flex-direction: row;
-  }
-
-  .layout-card {
-    flex: 1;
-  }
 }
 
 @media (max-width: 359px) {
