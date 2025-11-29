@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>라이브러리 썸네일 메이커</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23ff0000'/><stop offset='20%25' style='stop-color:%23ffff00'/><stop offset='40%25' style='stop-color:%2300ff00'/><stop offset='60%25' style='stop-color:%2300ffff'/><stop offset='80%25' style='stop-color:%230000ff'/><stop offset='100%25' style='stop-color:%23ff00ff'/></linearGradient></defs><rect width='100' height='100' fill='%233352ff' rx='20'/><rect x='30' y='30' width='40' height='40' fill='url(%23grad)' rx='8'/></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- 상단 바 -->
+      <header class="app-header">
+        <button class="nav-icon" aria-label="뒤로 가기">
+          ‹
+        </button>
+        <h1 class="app-title">레이아웃 선택</h1>
+        <span class="nav-spacer"></span>
+      </header>
+
+      <!-- 홈 / 본문 -->
+      <main class="app-main">
+        <!-- 1단계: 레이아웃 선택 화면 -->
+        <section id="step-layout" class="step step-active">
+          <h2 class="step-title">썸네일을 만들 레이아웃을 선택하세요</h2>
+
+
+          <div class="layout-grid">
+            <button class="layout-card" data-layout="A">
+              <div class="layout-thumbnail layout-a"></div>
+              <div class="layout-label-top">레이아웃 A</div>
+              <div class="layout-label-sub">사진 1장, 크게 보여주기</div>
+            </button>
+
+            <button class="layout-card" data-layout="B">
+              <div class="layout-thumbnail layout-b"></div>
+              <div class="layout-label-top">레이아웃 B</div>
+              <div class="layout-label-sub">사진 2~4장, 나눠서 보여주기</div>
+            </button>
+          </div>
+        </section>
+
+        <!-- 2단계: 사진 선택 화면 -->
+        <section id="step-photo" class="step">
+          <h2 id="photo-title" class="step-title">사진을 선택하세요</h2>
+
+          <label for="photo-input" class="photo-upload-area">
+            <div class="photo-upload-icon">＋</div>
+            <div class="photo-upload-main">사진첩에서 이미지 선택하기</div>
+            <div class="photo-upload-sub">여러 장을 한 번에 선택할 수 있어요.</div>
+          </label>
+          <input
+            id="photo-input"
+            type="file"
+            accept="image/*"
+            multiple
+            class="photo-input-hidden"
+          />
+
+          <!-- 선택한 사진 미리보기 -->
+          <div id="photo-preview" class="photo-preview-grid"></div>
+
+          <p id="photo-count" class="photo-count-text">0개 선택됨</p>
+        </section>
+
+        <!-- 3단계: 편집 화면 -->
+        <section id="step-edit" class="step">
+          <h2 class="step-title">썸네일 미리보기</h2>
+          <p class="step-desc">
+            선택한 레이아웃에 맞게 배치된 모습이에요. 이미지를 드래그해서 위치를 조정할 수 있어요.
+          </p>
+
+          <!-- Canvas 미리보기 -->
+          <div class="canvas-preview-wrapper">
+            <canvas id="preview-canvas" width="1080" height="1080" style="cursor: move;"></canvas>
+          </div>
+
+          <!-- 배경색 선택 옵션 -->
+          <div class="edit-options">
+            <div class="option-group">
+              <label class="option-label">배경색</label>
+              <div class="color-picker-wrapper">
+                <button class="preset-color" data-color="#808080" style="background: #808080;"></button>
+                <button class="preset-color" data-color="#ffffff" style="background: #ffffff;"></button>
+                <button class="preset-color" data-color="#ffc0cb" style="background: #ffc0cb;"></button>
+                <button class="preset-color" data-color="#ffe4b5" style="background: #ffe4b5;"></button>
+                <button class="preset-color" data-color="#fffacd" style="background: #fffacd;"></button>
+                <button class="preset-color" data-color="#c8e6c9" style="background: #c8e6c9;"></button>
+                <button class="preset-color" data-color="#b2ebf2" style="background: #b2ebf2;"></button>
+                <button class="preset-color" data-color="#bbdefb" style="background: #bbdefb;"></button>
+                <button class="preset-color" data-color="#d1c4e9" style="background: #d1c4e9;"></button>
+                <button class="preset-color" data-color="#f8bbd0" style="background: #f8bbd0;"></button>
+                <label for="bg-color-picker" class="custom-color-picker">
+                  <input type="color" id="bg-color-picker" value="#ffffff" />
+                </label>
+                <span id="bg-color-value">#FFFFFF</span>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- 4단계: 결과 화면 -->
+        <section id="step-result" class="step">
+          <h2 class="step-title">썸네일이 완성되었어요!</h2>
+
+
+          <!-- 완성된 이미지 미리보기 -->
+          <div class="result-preview-wrapper">
+            <canvas id="result-canvas" width="1080" height="1080"></canvas>
+          </div>
+        </section>
+      </main>
+
+      <!-- 하단 고정 CTA -->
+      <footer class="app-footer">
+        <button id="btn-next" class="primary-btn" disabled>
+          다음으로
+        </button>
+        <button id="btn-set-flo" class="cta-btn" style="display: none;">
+          내 리스트 이미지로 설정하기
+        </button>
+        <button id="btn-download" class="secondary-btn" style="display: none;">
+          이미지 다운로드
+        </button>
+        <button id="btn-restart" class="secondary-btn" style="display: none;">
+          다시 만들기
+        </button>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
+
