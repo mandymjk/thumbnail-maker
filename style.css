@@ -93,11 +93,11 @@ body {
   left: 0;
   right: 0;
   padding: 12px 16px 12px; /* 위아래 동일하게 12px */
+  padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* Safe area 고려 */
   background: #ffffff;
   z-index: 100;
   display: flex;
   gap: 8px;
-  padding-bottom: 34px; /* Safe area를 위한 추가 여백 (iOS 홈 인디케이터) */
 }
 
 .app-footer::before {

@@ -329,9 +329,9 @@ function goToPhotoStep() {
   restartButton.style.display = "none";
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
   
-  // 헤더 spacer 숨김 (뒤로가기 버튼 표시로 타이틀 자동 중앙)
+  // 헤더 spacer 표시 (타이틀 중앙 정렬)
   const headerSpacer = document.getElementById("header-spacer");
-  if (headerSpacer) headerSpacer.style.display = "none";
+  if (headerSpacer) headerSpacer.style.display = "block";
   
   // 화면 최상단으로 스크롤
   window.scrollTo(0, 0);
@@ -427,9 +427,9 @@ function goToEditStep() {
   restartButton.style.display = "none";
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
   
-  // 헤더 spacer 숨김
+  // 헤더 spacer 표시 (타이틀 중앙 정렬)
   const headerSpacer = document.getElementById("header-spacer");
-  if (headerSpacer) headerSpacer.style.display = "none";
+  if (headerSpacer) headerSpacer.style.display = "block";
 
   // 편집 화면으로 돌아올 때는 기존 offset 유지
   // 이미지 로드 및 미리보기 렌더링
