@@ -100,6 +100,20 @@ body {
   gap: 8px;
 }
 
+/* 결과 화면 버튼 레이아웃 */
+.result-buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.secondary-buttons {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
 .app-footer::before {
   content: "";
   position: absolute;

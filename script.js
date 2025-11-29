@@ -35,6 +35,7 @@ const nextButton = document.getElementById("btn-next");
 const setFloButton = document.getElementById("btn-set-flo");
 const downloadButton = document.getElementById("btn-download");
 const restartButton = document.getElementById("btn-restart");
+const resultButtonsContainer = document.querySelector(".result-buttons");
 const stepLayout = document.getElementById("step-layout");
 const stepPhoto = document.getElementById("step-photo");
 const appTitle = document.querySelector(".app-title");
@@ -324,9 +325,7 @@ function goToPhotoStep() {
   // 버튼 표시 설정
   nextButton.style.display = "flex";
   nextButton.textContent = "이미지로 만들기";
-  setFloButton.style.display = "none";
-  downloadButton.style.display = "none";
-  restartButton.style.display = "none";
+  resultButtonsContainer.style.display = "none"; // 결과 버튼 컨테이너 숨김
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
   backButton.style.visibility = "visible"; // visibility 복원
   
@@ -358,9 +357,7 @@ function goToLayoutStep() {
   nextButton.style.display = "flex";
   nextButton.textContent = "다음으로";
   nextButton.disabled = !selectedLayout;
-  setFloButton.style.display = "none";
-  downloadButton.style.display = "none";
-  restartButton.style.display = "none";
+  resultButtonsContainer.style.display = "none"; // 결과 버튼 컨테이너 숨김
   backButton.style.visibility = "hidden"; // 공간은 유지하고 안보이게만
   
   // 헤더 spacer 표시 (타이틀 중앙 정렬)
@@ -419,9 +416,7 @@ function goToEditStep() {
   nextButton.style.display = "flex";
   nextButton.textContent = "썸네일 생성하기";
   nextButton.disabled = false;
-  setFloButton.style.display = "none";
-  downloadButton.style.display = "none";
-  restartButton.style.display = "none";
+  resultButtonsContainer.style.display = "none"; // 결과 버튼 컨테이너 숨김
   backButton.style.display = "block"; // 뒤로가기 버튼 표시
   backButton.style.visibility = "visible"; // visibility 복원
   
@@ -460,9 +455,7 @@ function goToResultStep() {
 
   // 버튼 표시 변경
   nextButton.style.display = "none"; // 다음으로 버튼 숨김
-  setFloButton.style.display = "flex"; // FLO 설정 버튼 표시
-  downloadButton.style.display = "flex"; // 다운로드 버튼 표시
-  restartButton.style.display = "flex"; // 다시 만들기 버튼 표시
+  resultButtonsContainer.style.display = "flex"; // 결과 버튼 컨테이너 표시
   
   // 뒤로가기 버튼 숨김 (visibility로 공간은 유지), spacer도 표시
   backButton.style.visibility = "hidden"; // display 대신 visibility 사용
