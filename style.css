@@ -531,7 +531,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 52px;
+  height: 48px; /* 52px → 48px로 변경하여 secondary 버튼과 동일하게 */
   border-radius: 12px;
   border: none;
   font-size: 15px;
