@@ -381,27 +381,17 @@ function restartFromBeginning() {
   photoInput.value = "";
   photoPreview.innerHTML = "";
   
-  // 화면 이동
-  currentStep = "layout";
-  stepPhoto.classList.remove("step-active");
-  stepEdit.classList.remove("step-active");
-  stepResult.classList.remove("step-active");
-  stepLayout.classList.add("step-active");
-  appTitle.textContent = "레이아웃 선택";
-  
   // 레이아웃 선택 초기화
   layoutButtons.forEach((btn) => btn.classList.remove("selected"));
   
-  // 버튼 상태
-  nextButton.style.display = "flex";
-  nextButton.textContent = "다음으로";
-  nextButton.disabled = true;
-  setFloButton.style.display = "none";
-  downloadButton.style.display = "none";
-  restartButton.style.display = "none";
+  // 캔버스 초기화
+  const editCtx = previewCanvas.getContext("2d");
+  editCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  const resultCtx = resultCanvas.getContext("2d");
+  resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
   
-  // 카운트 텍스트 초기화
-  updatePhotoCount();
+  // 화면 이동
+  goToLayoutStep();
 }
 
 // 편집 화면으로 이동
