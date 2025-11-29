@@ -4,6 +4,7 @@ let selectedLayout = null;
 let currentStep = "layout";
 let selectedPhotos = []; // 선택한 사진 파일들을 저장
 let imageOffsets = []; // 각 이미지의 드래그 offset 저장 [{x: 0, y: 0}, ...]
+let imageScales = []; // 각 이미지의 확대/축소 배율 저장
 let loadedImages = []; // 로드된 Image 객체들
 let backgroundColor = "#ffffff"; // 배경색
 let isDragging = false;
@@ -12,6 +13,11 @@ let dragStartX = 0;
 let dragStartY = 0;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
+
+// 핀치 줌 관련
+let isPinching = false;
+let initialPinchDistance = 0;
+let initialScale = 1;
 
 // 레이아웃별 사진 개수 제한
 const layoutLimits = {
@@ -330,6 +336,7 @@ function restartFromBeginning() {
   selectedLayout = null;
   selectedPhotos = [];
   imageOffsets = [];
+  imageScales = [];
   loadedImages = [];
   imageRegions = [];
   isDragging = false;
@@ -438,6 +445,7 @@ function renderPreview() {
 function loadImagesForEdit() {
   loadedImages = [];
   imageOffsets = [];
+  imageScales = [];
   let loadedCount = 0;
 
   selectedPhotos.forEach((file, index) => {
@@ -445,6 +453,7 @@ function loadImagesForEdit() {
     img.onload = () => {
       loadedImages.push(img);
       imageOffsets.push({ x: 0, y: 0 }); // 초기 offset
+      imageScales.push(1.0); // 초기 스케일 1.0 (원본 크기)
       loadedCount++;
       if (loadedCount === selectedPhotos.length) {
         renderPreview();
@@ -474,9 +483,10 @@ function drawLayout(ctx, size, images, isPreview = false) {
     if (images[0]) {
       const img = images[0];
       const offset = isPreview ? imageOffsets[0] : { x: 0, y: 0 };
+      const userScale = isPreview ? (imageScales[0] || 1.0) : 1.0;
       
       // cover 방식: 더 짧은 쪽에 맞춰서 crop
-      const scale = Math.max(size / img.width, size / img.height);
+      const scale = Math.max(size / img.width, size / img.height) * userScale;
       const scaledWidth = img.width * scale;
       const scaledHeight = img.height * scale;
       
@@ -502,10 +512,11 @@ function drawLayout(ctx, size, images, isPreview = false) {
       const cellHeight = size / 2;
       images.forEach((img, i) => {
         const offset = isPreview ? imageOffsets[i] : { x: 0, y: 0 };
+        const userScale = isPreview ? (imageScales[i] || 1.0) : 1.0;
         const regionY = i * cellHeight;
         
         // cover 방식: 더 짧은 쪽에 맞춰서 crop
-        const scale = Math.max(size / img.width, cellHeight / img.height);
+        const scale = Math.max(size / img.width, cellHeight / img.height) * userScale;
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
         
@@ -532,7 +543,8 @@ function drawLayout(ctx, size, images, isPreview = false) {
       // 위 1장
       const topImg = images[0];
       const topOffset = isPreview ? imageOffsets[0] : { x: 0, y: 0 };
-      const topScale = Math.max(size / topImg.width, topHeight / topImg.height);
+      const topUserScale = isPreview ? (imageScales[0] || 1.0) : 1.0;
+      const topScale = Math.max(size / topImg.width, topHeight / topImg.height) * topUserScale;
       const topScaledWidth = topImg.width * topScale;
       const topScaledHeight = topImg.height * topScale;
       const topCropX = (topScaledWidth - size) / 2 - topOffset.x;
@@ -550,10 +562,11 @@ function drawLayout(ctx, size, images, isPreview = false) {
       // 아래 2장
       [images[1], images[2]].forEach((img, i) => {
         const offset = isPreview ? imageOffsets[i + 1] : { x: 0, y: 0 };
+        const userScale = isPreview ? (imageScales[i + 1] || 1.0) : 1.0;
         const regionX = i * bottomCellWidth;
         const regionY = topHeight;
         
-        const scale = Math.max(bottomCellWidth / img.width, bottomHeight / img.height);
+        const scale = Math.max(bottomCellWidth / img.width, bottomHeight / img.height) * userScale;
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
         const cropX = (scaledWidth - bottomCellWidth) / 2 - offset.x;
@@ -566,6 +579,41 @@ function drawLayout(ctx, size, images, isPreview = false) {
         );
         
         if (isPreview) {
+          imageRegions.push({ x: regionX, y: regionY, width: bottomCellWidth, height: bottomHeight, imageIndex: i + 1 });
+        }
+      });
+    } else if (count === 4) {
+      // 4장: 2x2 그리드
+      const cellWidth = size / 2;
+      const cellHeight = size / 2;
+      
+      images.forEach((img, i) => {
+        const offset = isPreview ? imageOffsets[i] : { x: 0, y: 0 };
+        const userScale = isPreview ? (imageScales[i] || 1.0) : 1.0;
+        const row = Math.floor(i / 2);
+        const col = i % 2;
+        const regionX = col * cellWidth;
+        const regionY = row * cellHeight;
+        
+        const scale = Math.max(cellWidth / img.width, cellHeight / img.height) * userScale;
+        const scaledWidth = img.width * scale;
+        const scaledHeight = img.height * scale;
+        const cropX = (scaledWidth - cellWidth) / 2 - offset.x;
+        const cropY = (scaledHeight - cellHeight) / 2 - offset.y;
+        
+        ctx.drawImage(
+          img,
+          cropX, cropY, cellWidth, cellHeight,
+          regionX, regionY, cellWidth, cellHeight
+        );
+        
+        if (isPreview) {
+          imageRegions.push({ x: regionX, y: regionY, width: cellWidth, height: cellHeight, imageIndex: i });
+        }
+      });
+    }
+  }
+}
           imageRegions.push({ x: regionX, y: regionY, width: bottomCellWidth, height: bottomHeight, imageIndex: i + 1 });
         }
       });
@@ -676,6 +724,37 @@ previewCanvas.addEventListener("mouseleave", () => {
 // 터치 이벤트 지원
 previewCanvas.addEventListener("touchstart", (e) => {
   e.preventDefault();
+  
+  // 핀치 줌 감지
+  if (e.touches.length === 2) {
+    isPinching = true;
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    const rect = previewCanvas.getBoundingClientRect();
+    const scale = previewCanvas.width / rect.width;
+    
+    // 두 터치 사이의 거리 계산
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
+    
+    // 터치 중앙점이 속한 이미지 찾기
+    const centerX = ((touch1.clientX + touch2.clientX) / 2 - rect.left) * scale;
+    const centerY = ((touch1.clientY + touch2.clientY) / 2 - rect.top) * scale;
+    
+    for (let i = imageRegions.length - 1; i >= 0; i--) {
+      const region = imageRegions[i];
+      if (centerX >= region.x && centerX < region.x + region.width &&
+          centerY >= region.y && centerY < region.y + region.height) {
+        dragImageIndex = region.imageIndex;
+        initialScale = imageScales[dragImageIndex] || 1.0;
+        break;
+      }
+    }
+    return;
+  }
+  
+  // 싱글 터치 - 드래그
   const touch = e.touches[0];
   const rect = previewCanvas.getBoundingClientRect();
   const scale = previewCanvas.width / rect.width;
@@ -699,7 +778,28 @@ previewCanvas.addEventListener("touchstart", (e) => {
 
 previewCanvas.addEventListener("touchmove", (e) => {
   e.preventDefault();
-  if (!isDragging) return;
+  
+  // 핀치 줌 처리
+  if (e.touches.length === 2 && isPinching && dragImageIndex !== -1) {
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    
+    // 현재 두 터치 사이의 거리
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    const currentDistance = Math.sqrt(dx * dx + dy * dy);
+    
+    // 스케일 계산 (0.5배 ~ 3배 제한)
+    const scaleChange = currentDistance / initialPinchDistance;
+    const newScale = Math.max(0.5, Math.min(3.0, initialScale * scaleChange));
+    
+    imageScales[dragImageIndex] = newScale;
+    renderPreview();
+    return;
+  }
+  
+  // 싱글 터치 드래그
+  if (!isDragging || e.touches.length !== 1) return;
   
   const touch = e.touches[0];
   const rect = previewCanvas.getBoundingClientRect();
@@ -718,8 +818,19 @@ previewCanvas.addEventListener("touchmove", (e) => {
 
 previewCanvas.addEventListener("touchend", (e) => {
   e.preventDefault();
-  isDragging = false;
-  dragImageIndex = -1;
+  
+  // 터치가 모두 끝났을 때
+  if (e.touches.length === 0) {
+    isDragging = false;
+    isPinching = false;
+    dragImageIndex = -1;
+  }
+  
+  // 핀치에서 싱글 터치로 전환
+  if (e.touches.length === 1 && isPinching) {
+    isPinching = false;
+    dragImageIndex = -1;
+  }
 });
 
 // 배경색 선택
