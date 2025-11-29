@@ -614,38 +614,8 @@ function drawLayout(ctx, size, images, isPreview = false) {
     }
   }
 }
-          imageRegions.push({ x: regionX, y: regionY, width: bottomCellWidth, height: bottomHeight, imageIndex: i + 1 });
-        }
-      });
-    } else if (count === 4) {
-      // 4장: 2x2 그리드
-      const cellSize = size / 2;
-      images.forEach((img, i) => {
-        const offset = isPreview ? imageOffsets[i] : { x: 0, y: 0 };
-        const row = Math.floor(i / 2);
-        const col = i % 2;
-        const regionX = col * cellSize;
-        const regionY = row * cellSize;
-        
-        const scale = Math.max(cellSize / img.width, cellSize / img.height);
-        const scaledWidth = img.width * scale;
-        const scaledHeight = img.height * scale;
-        const cropX = (scaledWidth - cellSize) / 2 - offset.x;
-        const cropY = (scaledHeight - cellSize) / 2 - offset.y;
-        
-        ctx.drawImage(
-          img,
-          cropX, cropY, cellSize, cellSize,
-          regionX, regionY, cellSize, cellSize
-        );
-        
-        if (isPreview) {
-          imageRegions.push({ x: regionX, y: regionY, width: cellSize, height: cellSize, imageIndex: i });
-        }
-      });
-    }
-  }
-}
+
+// 이미지 영역 정보 저장 (드래그를 위해)
 
 // 드래그 이벤트 처리
 previewCanvas.addEventListener("mousedown", (e) => {
