@@ -48,7 +48,7 @@ const bgColorValue = document.getElementById("bg-color-value");
 
 // 레이아웃 카드 클릭 시 선택 상태 토글
 layoutButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
+  const selectLayout = () => {
     layoutButtons.forEach((b) => b.classList.remove("selected"));
     btn.classList.add("selected");
     selectedLayout = btn.dataset.layout;
@@ -56,6 +56,15 @@ layoutButtons.forEach((btn) => {
     if (currentStep === "layout") {
       nextButton.disabled = false;
     }
+  };
+  
+  // 클릭 이벤트
+  btn.addEventListener("click", selectLayout);
+  
+  // 터치 이벤트 (모바일 지원)
+  btn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    selectLayout();
   });
 });
 
